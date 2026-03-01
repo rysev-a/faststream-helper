@@ -1,0 +1,11 @@
+[project]
+name = "faststream-request-reply"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.129.0",
+    "faststream[cli,nats]>=0.6.6",
+    "msgspec>=0.20.0",
+    "uvicorn>=0.40.0",
+]
