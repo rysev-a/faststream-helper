@@ -1,19 +1,21 @@
 import uuid
+from collections.abc import Callable
 
-from faststream import Depends
+from faststream import Context, Depends, Logger
+from faststream.nats import NatsMessage
 
-from contracts.project import (
+from common.contracts.project import (
     ProjectContracts,
     ProjectGetResponse,
     ProjectListRequest,
     ProjectListResponse,
 )
-from rpc import ServiceResolver, create_service
+from common.lib.rpc import ServiceResolver
 
 value = {"count": 0}
 
 
-def simple_dependency():
+def simple_dependency() -> int:
     return value["count"]
 
 
@@ -22,32 +24,27 @@ class ProjectService(ServiceResolver, ProjectContracts):
         self.info = "project service"
 
     async def start(self):
-        print("start")
+        print("run project service")
 
     async def get_projects(
-        self, message: ProjectListRequest, d: int = Depends(simple_dependency)
+        self,
+        message: ProjectListRequest,
+        logger: Logger,
+        d: int = Depends(simple_dependency),
     ) -> ProjectListResponse:
         value["count"] += 1
-        print(d)
+        logger.info(d)
+
         return ProjectListResponse(
             projects=[
                 ProjectGetResponse(
                     id=uuid.uuid4(),
-                    name=f"name {i} {d}",
-                    description=f"description {i}",
+                    name=f"name {i}",
+                    description=f"description {d}",
                 )
                 for i in range(message.count)
             ]
         )
 
-    async def handle(self, body):
-        return f"Hi {body} {self.info} ok"
-
-    async def handle_test(self, body):
-        return f"Hi {body} {self.info} ok test"
-
     async def stop(self):
         print("stop")
-
-
-app = create_service(ProjectService, ProjectContracts)

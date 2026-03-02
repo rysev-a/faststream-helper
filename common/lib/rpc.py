@@ -1,9 +1,11 @@
 import dataclasses
+import functools
 import inspect
 from abc import ABC
 from contextlib import asynccontextmanager
-from types import FunctionType
+from types import MethodType
 from typing import TypeVar
+from uuid import UUID, uuid4
 
 from faststream import FastStream
 from faststream.nats import NatsBroker, NatsRoute, NatsRouter
@@ -15,7 +17,7 @@ T = TypeVar("T")
 class RpcMethod:
     subject: str
     method_name: str
-    method_func: FunctionType
+    method_func: MethodType
 
 
 class ServiceResolver(ABC):
@@ -32,8 +34,9 @@ class ServiceResolver(ABC):
         raise NotImplementedError()
 
 
-def create_service(resolver_class: type[ServiceResolver], contract_class) -> FastStream:
-    broker = NatsBroker("nats://localhost:4222")
+def create_service(
+    resolver_class: type[ServiceResolver], contract_class, broker: NatsBroker
+) -> FastStream:
     resolver = resolver_class()
 
     @asynccontextmanager
@@ -52,10 +55,20 @@ def create_service(resolver_class: type[ServiceResolver], contract_class) -> Fas
     return FastStream(broker, lifespan=lifespan)
 
 
-def create_client(contract_class: T, broker) -> T:
-    def __handle_rpc_call(subject: str, method_function: FunctionType):
-        async def func(message):
-            response = await broker.request(message, subject=subject, timeout=30)
+def create_client(contract_class: T, broker: NatsBroker) -> T:
+    def init(self, correlation_id: UUID):
+        self.correlation_id = correlation_id
+
+    setattr(contract_class, "__init__", init)
+
+    def __handle_rpc_call(message_subject: str, method_function: MethodType):
+        async def func(self, message):
+            response = await broker.request(
+                message,
+                subject=message_subject,
+                timeout=30,
+                correlation_id=str(self.correlation_id),
+            )
             return_type = inspect.getfullargspec(method_function).annotations.get(
                 "return"
             )
@@ -77,7 +90,7 @@ def _get_rpc_methods(
 ) -> list[RpcMethod]:
     rpc_methods = []
     for method_name in dir(contract_class):
-        method_func = getattr(contract_class, method_name)
+        method_func: MethodType = getattr(contract_class, method_name)
         if callable(method_func):
             if hasattr(method_func, "subject"):
                 subject = getattr(method_func, "subject")
@@ -89,3 +102,15 @@ def _get_rpc_methods(
                     )
                 )
     return rpc_methods
+
+
+def subject(subject_name: str):
+    def decorator(func):
+        @functools.wraps(func)
+        async def wrapper(*args, **kwargs):
+            return await func(*args, **kwargs)
+
+        wrapper.subject = subject_name
+        return wrapper
+
+    return decorator

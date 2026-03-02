@@ -1,4 +1,36 @@
 services:
+  api_gateway:
+    build:
+      context: ./
+      dockerfile: ./services/api_gateway/Dockerfile
+    environment:
+      NATS_URL: nats://nats:4222
+    ports:
+      - "8000:8000"
+    depends_on:
+      - nats
+    networks:
+      - main
+  projects:
+    build:
+      context: ./
+      dockerfile: ./services/projects/Dockerfile
+    environment:
+      NATS_URL: nats://nats:4222
+    depends_on:
+      - nats
+    networks:
+      - main
+  nats:
+    image: nats:latest
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    command: "--js -sd /data"
+    volumes:
+      - nats_data:/data
+    networks:
+      - main
   vault:
     image: hashicorp/vault:latest
     container_name: vault-dev
@@ -20,3 +52,7 @@ services:
       - pgdata:/var/lib/postgresql/data
 volumes:
   pgdata:
+  nats_data:
+networks:
+  main:
+    driver: bridge

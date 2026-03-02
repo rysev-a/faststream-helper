@@ -1,0 +1,9 @@
+[project]
+name = "projects"
+version = "0.1.0"
+description = "Projects service"
+requires-python = ">=3.13"
+dependencies = [
+    "faststream[cli,nats]>=0.6.6",
+    "msgspec>=0.20.0",
+]

@@ -1,20 +1,13 @@
-import functools
-from abc import ABC
+import uuid
 from uuid import UUID
 
 from pydantic import BaseModel
 
+from ..lib.rpc import subject
 
-def rpc(subject: str):
-    def decorator(func):
-        @functools.wraps(func)
-        async def wrapper(*args, **kwargs):
-            return await func(*args, **kwargs)
 
-        wrapper.subject = subject
-        return wrapper
-
-    return decorator
+class BaseRequest(BaseModel):
+    correlation_id: UUID | None = None
 
 
 class ProjectGetResponse(BaseModel):
@@ -23,7 +16,7 @@ class ProjectGetResponse(BaseModel):
     description: str
 
 
-class ProjectListRequest(BaseModel):
+class ProjectListRequest(BaseRequest):
     count: int
 
 
@@ -41,12 +34,13 @@ class ProjectUpdateResponse(ProjectGetResponse): ...
 
 
 class ProjectContracts:
-    @rpc("projects.list")
+    @subject("projects.list")
     async def get_projects(
-        self, message: ProjectListRequest
+        self,
+        message: ProjectListRequest,
     ) -> ProjectListResponse: ...
 
-    @rpc("projects.update")
+    @subject("projects.update")
     async def update_project(
-        self, project: ProjectUpdateRequest
+        self, message: ProjectUpdateRequest
     ) -> ProjectUpdateResponse: ...
