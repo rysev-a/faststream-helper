@@ -1,4 +1,13 @@
 services:
+  client:
+    build:
+      context: ./client
+    ports:
+      - "80:80"
+    depends_on:
+      - api_gateway
+    networks:
+      - main
   api_gateway:
     build:
       context: ./
@@ -14,7 +23,7 @@ services:
   projects:
     build:
       context: ./
-      dockerfile: ./services/projects/Dockerfile
+      dockerfile: ./services/projects_service/Dockerfile
     environment:
       NATS_URL: nats://nats:4222
     depends_on:

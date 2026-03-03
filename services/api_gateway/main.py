@@ -6,9 +6,9 @@ from typing import Annotated, Generator, TypeAlias
 from fastapi import Depends, FastAPI, Request
 from faststream.nats import NatsBroker
 
-from common.contracts.project import (
-    ProjectContracts,
+from common.contracts.projects_service import (
     ProjectListRequest,
+    ProjectsContracts,
 )
 from common.lib.rpc import create_client
 
@@ -32,7 +32,7 @@ def provider_client[T](service_contracts: T):
 
 
 ProjectsClientDependency: TypeAlias = Annotated[
-    ProjectContracts, Depends(provider_client(ProjectContracts))
+    ProjectsContracts, Depends(provider_client(ProjectsContracts))
 ]
 
 

@@ -1,4 +1,3 @@
-import uuid
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -33,7 +32,7 @@ class ProjectUpdateRequest(BaseModel):
 class ProjectUpdateResponse(ProjectGetResponse): ...
 
 
-class ProjectContracts:
+class ProjectsContracts:
     @subject("projects.list")
     async def get_projects(
         self,
