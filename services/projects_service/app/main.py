@@ -1,11 +1,6 @@
-import os
-
-from faststream.nats import NatsBroker, NatsMessage
-
-from common.contracts.projects_service import ProjectsContracts
 from common.lib.rpc import create_service
+from common.protocols import ProjectsProtocol
 
 from .service import ProjectService
 
-broker = NatsBroker(os.environ["NATS_URL"])
-app = create_service(ProjectService, ProjectsContracts, broker)
+app = create_service(ProjectService, ProjectsProtocol)

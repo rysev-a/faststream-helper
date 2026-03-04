@@ -5,10 +5,12 @@ from abc import ABC
 from contextlib import asynccontextmanager
 from types import MethodType
 from typing import TypeVar
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from faststream import FastStream
 from faststream.nats import NatsBroker, NatsRoute, NatsRouter
+
+from .broker import nats_broker
 
 T = TypeVar("T")
 
@@ -20,7 +22,7 @@ class RpcMethod:
     method_func: MethodType
 
 
-class ServiceResolver(ABC):
+class RpcService(ABC):
     async def start(self):
         """
         Create database connections, init cache etc.
@@ -34,9 +36,7 @@ class ServiceResolver(ABC):
         raise NotImplementedError()
 
 
-def create_service(
-    resolver_class: type[ServiceResolver], contract_class, broker: NatsBroker
-) -> FastStream:
+def create_service(resolver_class: type[RpcService], contract_class) -> FastStream:
     resolver = resolver_class()
 
     @asynccontextmanager
@@ -51,8 +51,8 @@ def create_service(
             for rpc_method in _get_rpc_methods(contract_class)
         ),
     )
-    broker.include_router(router)
-    return FastStream(broker, lifespan=lifespan)
+    nats_broker.include_router(router)
+    return FastStream(nats_broker, lifespan=lifespan)
 
 
 def create_client(contract_class: T, broker: NatsBroker) -> T:

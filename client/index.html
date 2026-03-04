@@ -4,10 +4,26 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>client</title>
+    <script src="https://cdn.jsdelivr.net/npm/uuid@latest/dist/umd/uuidv4.min.js"></script>
+    <title>rpc</title>
+      <style>
+          #data-view {
+              white-space: pre;
+          }
+          .data-view-wrapper {
+              margin: 20px 0 0 0;
+          }
+      </style>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <div class="buttons">
+        <button id="load-projects">load projects</button>
+        <div>correlation ID: <span id="correlation-id"></span>
+    </div>
+    <div class="data-view-wrapper">
+        <code id="data-view">...content</code>
+    </div>
+
+    <script type="module" src="/index.js"></script>
   </body>
 </html>

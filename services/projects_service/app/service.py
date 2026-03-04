@@ -1,23 +1,21 @@
-import uuid
+from uuid import UUID, uuid4
 
-from faststream import Depends, Logger
+from faststream import Context, Depends, Logger
+from faststream.nats import NatsBroker
 
-from common.contracts.projects_service import (
+from common.lib.dependencies import provider_rpc_client
+from common.lib.rpc import RpcService
+from common.protocols import (
+    GetSecretRequest,
     ProjectGetResponse,
     ProjectListRequest,
     ProjectListResponse,
-    ProjectsContracts,
+    ProjectsProtocol,
+    SecretsProtocol,
 )
-from common.lib.rpc import ServiceResolver
-
-value = {"count": 0}
 
 
-def simple_dependency() -> int:
-    return value["count"]
-
-
-class ProjectService(ServiceResolver, ProjectsContracts):
+class ProjectService(RpcService, ProjectsProtocol):
     def __init__(self):
         self.info = "project service"
 
@@ -27,22 +25,26 @@ class ProjectService(ServiceResolver, ProjectsContracts):
     async def get_projects(
         self,
         message: ProjectListRequest,
-        d: int = Depends(simple_dependency),
+        secrets_client: SecretsProtocol = Depends(provide_rpc_client(SecretsProtocol)),
         logger: Logger = None,
     ) -> ProjectListResponse:
-        value["count"] += 1
-        logger.info(d)
+        logger.info("get projects list")
 
-        return ProjectListResponse(
-            projects=[
+        projects: list[ProjectGetResponse] = []
+        for i in range(message.count):
+            project_id = uuid4()
+            projects.append(
                 ProjectGetResponse(
-                    id=uuid.uuid4(),
+                    id=project_id,
                     name=f"name {i}",
-                    description=f"description {d}",
+                    description=f"description {i}",
+                    secret=(
+                        await secrets_client.get_secret(GetSecretRequest(id=project_id))
+                    ).data,
                 )
-                for i in range(message.count)
-            ]
-        )
+            )
+
+        return ProjectListResponse(projects=projects)
 
     async def stop(self):
         print("stop")

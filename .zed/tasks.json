@@ -1,0 +1,26 @@
+[
+  {
+    "label": "Run frontend",
+    "cwd": "$ZED_WORKTREE_ROOT/client",
+    "command": "http-server --port=5173  --proxy http://localhost:8000/api",
+  },
+
+  {
+    "label": "Run api gateway",
+    "command": ".venv/bin/uvicorn",
+    "args": ["services.api_gateway.main:app", "--reload"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "env": {
+      "NATS_URL": "nats://localhost:4222",
+    },
+  },
+  {
+    "label": "Run projects",
+    "command": ".venv/bin/faststream",
+    "args": ["run", "services.projects_service.app.main:app", "--reload"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "env": {
+      "NATS_URL": "nats://localhost:4222",
+    },
+  },
+]

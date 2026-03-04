@@ -1,0 +1,18 @@
+{
+  // Add files or globs of files that will be excluded by Zed entirely:
+  // they will be skipped during FS scan(s), file tree and file search
+  // will lack the corresponding file entries.
+  "file_scan_exclusions": [
+    "**/.ruff_cache", // Example of another exclusion
+    "**/__pycache__", // Add this line to exclude all __pycache__ directories
+    // Default values below (ensure you keep them if you want to exclude them)
+    "**/.git",
+    "**/.svn",
+    "**/.hg",
+    "**/CVS",
+    "**/.DS_Store",
+    "**/Thumbs.db",
+    "**/.classpath",
+    "**/.settings",
+  ],
+}
