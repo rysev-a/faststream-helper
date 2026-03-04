@@ -1,9 +1,7 @@
-from uuid import UUID, uuid4
+from uuid import uuid4
 
-from faststream import Context, Depends, Logger
-from faststream.nats import NatsBroker
+from faststream import Depends, Logger
 
-from common.lib.dependencies import provider_rpc_client
 from common.lib.rpc import RpcService
 from common.protocols import (
     GetSecretRequest,
@@ -44,7 +42,9 @@ class ProjectService(RpcService, ProjectsProtocol):
                 )
             )
 
-        return ProjectListResponse(projects=projects)
+        return ProjectListResponse(
+            projects=projects,
+        )
 
     async def stop(self):
         print("stop")

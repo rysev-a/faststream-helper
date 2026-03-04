@@ -1,7 +1,7 @@
 document.getElementById('load-projects').addEventListener('click', () => {
   const correlationID = uuidv4();
 
-  fetch('/projects/', {
+  fetch('/api/projects/', {
     headers: {
       'correlation-id': correlationID
     }

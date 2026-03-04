@@ -30,6 +30,16 @@ services:
       - nats
     networks:
       - main
+  secrets:
+    build:
+      context: ./
+      dockerfile: ./services/secrets_service/Dockerfile
+    environment:
+      NATS_URL: nats://nats:4222
+    depends_on:
+      - nats
+    networks:
+      - main
   nats:
     image: nats:latest
     ports:
