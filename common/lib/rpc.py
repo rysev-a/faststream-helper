@@ -8,7 +8,7 @@ from typing import TypeVar
 from uuid import UUID
 
 from faststream import FastStream
-from faststream.nats import NatsBroker, NatsRoute, NatsRouter
+from faststream.nats import NatsRoute, NatsRouter
 
 from .broker import nats_broker
 
@@ -82,7 +82,7 @@ def create_service(resolver_classes: list[type[RpcService]]) -> FastStream:
     return FastStream(nats_broker, lifespan=lifespan)
 
 
-def create_client(contract_class: T, broker: NatsBroker) -> T:
+def create_client(contract_class: T) -> T:
     def init(self, correlation_id: UUID):
         self.correlation_id = correlation_id
 
@@ -93,7 +93,7 @@ def create_client(contract_class: T, broker: NatsBroker) -> T:
     ):
         async def func(self, message):
             if call_type == "request":
-                response = await broker.request(
+                response = await nats_broker.request(
                     message,
                     subject=message_subject,
                     timeout=30,
@@ -104,7 +104,7 @@ def create_client(contract_class: T, broker: NatsBroker) -> T:
                 )
                 return return_type.model_validate_json(response.body.decode("utf-8"))
             if call_type == "publish":
-                await broker.publish(
+                await nats_broker.publish(
                     message,
                     subject=message_subject,
                     timeout=30,
