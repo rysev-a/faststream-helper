@@ -2,7 +2,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from common.lib.rpc import subject
+from common.lib.rpc import rpc
 
 __all__ = [
     "ProjectsProtocol",
@@ -43,13 +43,13 @@ class ProjectUpdateResponse(ProjectGetResponse): ...
 
 
 class ProjectsProtocol:
-    @subject("projects.list")
+    @rpc("projects.list")
     async def get_projects(
         self,
         message: ProjectListRequest,
     ) -> ProjectListResponse: ...
 
-    @subject("projects.update")
+    @rpc("projects.update")
     async def update_project(
         self, message: ProjectUpdateRequest
     ) -> ProjectUpdateResponse: ...

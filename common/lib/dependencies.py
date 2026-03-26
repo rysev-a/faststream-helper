@@ -2,6 +2,7 @@ import uuid
 from typing import Generator
 
 from fastapi import Depends, Request
+from faststream import Depends as FastStreamDepends
 from faststream import Context
 from faststream.nats import NatsBroker
 
@@ -33,7 +34,7 @@ def provider_client[T](service_contracts: T):
 
 def provide_rpc_client[T](protocol: T):
     def provide(
-        broker: NatsBroker = Depends(provide_broker),
+        broker: NatsBroker = FastStreamDepends(provide_broker),
         correlation_id: str = Context("message.correlation_id"),
     ) -> T:
         yield create_client(protocol, broker)(uuid.UUID(correlation_id))

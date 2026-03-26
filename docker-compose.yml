@@ -42,9 +42,6 @@ services:
       - main
   nats:
     image: nats:latest
-    ports:
-      - "4222:4222"
-      - "8222:8222"
     command: "--js -sd /data"
     volumes:
       - nats_data:/data
@@ -53,8 +50,6 @@ services:
   vault:
     image: hashicorp/vault:latest
     container_name: vault-dev
-    ports:
-      - "8200:8200"
     environment:
       - VAULT_DEV_ROOT_TOKEN_ID=dev_root
       - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
@@ -65,8 +60,6 @@ services:
       POSTGRES_PASSWORD: pass
       POSTGRES_USER: app
       POSTGRES_DB: app
-    ports:
-      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 volumes:

@@ -14,6 +14,8 @@ from .secrets import (
     SecretsProtocol,
 )
 
+from .events import EventsProtocol, PublishEventRequest
+
 __all__ = [
     "ProjectsProtocol",
     "ProjectGetResponse",
@@ -26,4 +28,6 @@ __all__ = [
     "GetSecretResponse",
     "PutSecretRequest",
     "PutSecretResponse",
+    "EventsProtocol",
+    "PublishEventRequest",
 ]

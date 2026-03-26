@@ -2,7 +2,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from common.lib.rpc import subject
+from common.lib.rpc import rpc
 
 
 class GetSecretRequest(BaseModel):
@@ -23,8 +23,8 @@ class PutSecretResponse(BaseModel):
 
 
 class SecretsProtocol:
-    @subject("secrets.get")
+    @rpc("secrets.get")
     async def get_secret(self, message: GetSecretRequest) -> GetSecretResponse: ...
 
-    @subject("secrets.put")
+    @rpc("secrets.put")
     async def put_secret(self, message: PutSecretRequest) -> GetSecretResponse: ...

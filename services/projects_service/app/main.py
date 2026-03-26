@@ -1,6 +1,5 @@
 from common.lib.rpc import create_service
-from common.protocols import ProjectsProtocol
 
-from .service import ProjectService
+from .service import ProjectService, EventService
 
-app = create_service(ProjectService, ProjectsProtocol)
+app = create_service([ProjectService, EventService])
