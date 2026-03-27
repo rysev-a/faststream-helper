@@ -6,6 +6,7 @@ from common.lib.dependencies import provide_rpc_client
 from common.lib.rpc import RpcService
 from common.protocols import (
     EventsProtocol,
+    GetSecretRequest,
     ProjectGetResponse,
     ProjectListRequest,
     ProjectListResponse,
@@ -52,16 +53,15 @@ class ProjectService(RpcService, ProjectsProtocol):
                     id=project_id,
                     name=f"name {i}",
                     description=f"description {i}",
-                    secret="abc",
-                    # secret=(
-                    #     await secrets_client.get_secret(GetSecretRequest(id=project_id))
-                    # ).data,
+                    secret=(
+                        await secrets_client.get_secret(GetSecretRequest(id=project_id))
+                    ).data,
                 )
             )
 
-        await events_client.publish_event(
-            PublishEventRequest(message="get projects success")
-        )
+        # await events_client.publish_event(
+        #     PublishEventRequest(message="get projects success")
+        # )
 
         return ProjectListResponse(
             projects=projects,

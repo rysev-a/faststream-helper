@@ -82,7 +82,7 @@ def create_service(resolver_classes: list[type[RpcService]]) -> FastStream:
     return FastStream(nats_broker, lifespan=lifespan)
 
 
-def create_client(contract_class: T) -> T:
+def create_client(contract_class: T) -> type[T]:
     def init(self, correlation_id: UUID):
         self.correlation_id = correlation_id
 
